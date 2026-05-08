@@ -10,7 +10,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     with conn: 
         print(f"Connected by{addr}")
         while True:
-            data = addr.serv(1028)
+            data = conn.recv(1024) #fixing the typo addr to conn
             if not data:
                 break
             conn.sendall(data)
