@@ -67,22 +67,22 @@ class Node:
     
     def listen(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM)as s:
-            s.bind((HOST, self.port))
-            s.listen()
-            conn, addr = s.accept()
-            with conn: 
-                print(f"Di koneksikan oleh {addr}")
-                while True:
-                    data = conn.recv(1024)
-                    if not data:
-                        break
-                    raw = data.decode()
-                    data_dict = json.loads(raw)
-                    psn_baru = message(id=data_dict["id"], origin=data_dict["origin"], payload=data_dict["payload"])
-                    self.handle_message(psn_baru)
+                    s.bind((HOST, self.port))
+                    s.listen()
+                    while True:
+                        conn, addr = s.accept()
+                        with conn: 
+                            print(f"Di koneksikan oleh {addr}")
+                            data = conn.recv(1024)
+                            if not data:
+                                break
+                            raw = data.decode()
+                            data_dict = json.loads(raw)
+                            psn_baru = message(id=str(data_dict["id"]), origin=data_dict["origin"], payload=data_dict["payload"])
+                            self.handle_message(psn_baru)
                 
 psn = message (
-    id = uuid.uuid4(),
+    id = str(uuid.uuid4()),
     origin = "A",
     payload = "Hello from A"
 )

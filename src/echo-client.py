@@ -5,7 +5,7 @@ PORT = 65535
 
 with socket.socket(socket.AF_INET ,socket.SOCK_STREAM)as s:
     s.connect((HOST, PORT))
-    s.sendall(b"Hello duniaku")
+    s.sendall(b"Hello duniaku my nabillah")
     data = s.recv(1024)
 
-print(f"di terima nikahnya{data!r}")
+print(f"saya teriam{data!r}")
