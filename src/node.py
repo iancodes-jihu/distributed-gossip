@@ -38,15 +38,19 @@ class Node:
         self.id = id
         self.neighbors = neighbors
         self.port = port
+        self.alive = True
         self.pesan_sudah_dibaca = set()
         
     def handle_message(self, psn):
-        if psn.id in self.pesan_sudah_dibaca:
-            print("Node", self.id, "ignore psn", psn.id, "already seen")
+        if self.alive == False:
             return
         else:
-            self.pesan_sudah_dibaca.add(psn.id)
-            self.foward_message(psn)
+                if psn.id in self.pesan_sudah_dibaca:
+                    print("Node", self.id, "ignore psn", psn.id, "already seen")
+                    return
+                else:
+                        self.pesan_sudah_dibaca.add(psn.id)
+                        self.foward_message(psn)
 
     def send_message(self,  psn, peer_port): 
             with socket.socket(socket.AF_INET ,socket.SOCK_STREAM)as s:
@@ -100,5 +104,6 @@ thread_b.start()
 thread_c.start()
 time.sleep(1)
 
+nodeB.alive = False
 nodeA.handle_message(psn)
 
