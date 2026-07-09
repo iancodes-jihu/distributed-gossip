@@ -3,6 +3,7 @@ import json
 import uuid
 import threading
 import time
+from time import perf_counter
 
 HOST = "127.0.0.1"
 PORT_A= 5004
@@ -59,7 +60,7 @@ class Node:
 #forward-ing message to the peers
     def forward_message(self, msg):
         
-        for peer_port in self.neighbors:
+        for peer_port in self.neighbors: #huh we already had this
             self.send_message(msg, peer_port)
             print("Node", self.id, "forward msg", msg.id, "to", peer_port)
 
@@ -80,6 +81,7 @@ class Node:
                             data_dict = json.loads(raw)
                             incoming_msg = message(id=str(data_dict["id"]), origin=data_dict["origin"], payload=data_dict["payload"])
                             self.handle_message(incoming_msg)
+       
                 
 msg = message (
     id = str(uuid.uuid4()),
@@ -92,6 +94,8 @@ nodeA = Node(id="5004", neighbors=PEERS_A, port= PORT_A)
 nodeB = Node(id="5002", neighbors=PEERS_B, port= PORT_B)
 nodeC = Node(id="5003", neighbors=PEERS_C, port= PORT_C)
 
+nodes = [nodeA,nodeB,nodeC]
+
 thread_a = threading.Thread(target=nodeA.listen)
 thread_b = threading.Thread(target=nodeB.listen)
 thread_c = threading.Thread(target=nodeC.listen)
@@ -103,4 +107,34 @@ time.sleep(1)
 nodeB.alive = False
 nodeA.handle_message(msg)
 
-#day 5S
+#Given:
+#The benchmark has started.
+def benchmark(nodes, msg):
+        for node in nodes:
+             while not msg.id in node.seen_messages:
+                  start = perf_counter()
+                  for node in nodes:
+                    if node.alive == True:
+                        if msg.id in node.seen_messages:
+                            return   #this is return true
+                        else:
+                            end = perf_counter()
+                            print("propagation time is", end-start)
+                    
+benchmark(nodes=[nodeA, nodeB, nodeC], msg=msg)                        
+#Then:
+#It can inspect those nodes.         
+
+    
+
+
+
+#Benchmark Workflow
+#1. Record start time.
+#2. Start gossip.
+#3. Repeatedly check every alive node.
+#4. Stop when every alive node has msg.id.
+#5. Record finish time.
+#6. Compute elapsed time.
+#7. Print the result.
+
