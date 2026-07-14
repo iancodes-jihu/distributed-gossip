@@ -6,13 +6,13 @@ import time
 from time import perf_counter
 
 HOST = "127.0.0.1"
-PORT_A= 5004
+PORT_A= 5001
 PORT_B= 5002
 PORT_C= 5003
 
 PEERS_A = [5002, 5003]
-PEERS_B = [5004, 5003]
-PEERS_C = [5004, 5002]
+PEERS_B = [5001, 5003]
+PEERS_C = [5001, 5002]
 
 class message:
     def __init__(self, id, origin, payload):
@@ -90,7 +90,7 @@ msg = message (
 )
 
 
-nodeA = Node(id="5004", neighbors=PEERS_A, port= PORT_A)
+nodeA = Node(id="5001", neighbors=PEERS_A, port= PORT_A)
 nodeB = Node(id="5002", neighbors=PEERS_B, port= PORT_B)
 nodeC = Node(id="5003", neighbors=PEERS_C, port= PORT_C)
 
@@ -104,24 +104,31 @@ thread_b.start()
 thread_c.start()
 time.sleep(1)
 
-nodeB.alive = False
-nodeA.handle_message(msg)
+
 
 #Given:
 #The benchmark has started.
-def benchmark(nodes, msg):
-        for node in nodes:
-             while not msg.id in node.seen_messages:
-                  start = perf_counter()
-                  for node in nodes:
-                    if node.alive == True:
-                        if msg.id in node.seen_messages:
-                            return   #this is return true
-                        else:
-                            end = perf_counter()
-                            print("propagation time is", end-start)
+def benchmark(nodes, msg, initiator_node):
+    start = time.perf_counter()
+    initiator_node.handle_message(msg)
+    
+    while not all(msg.id in node.seen_messages for node in nodes if node.alive):
+        print("message havent been seen, still waiting for he messege to be send...")
+        time.sleep(0.1)
+    # What should we do inside the loop while waiting?
+
+    end = time.perf_counter()
+    elapsed_time = end - start
+    print(f"Convergence completed in {elapsed_time:.4f} seconds.")
+
+    return elapsed_time
+
+nodeB.alive = False
+#print(benchmark(nodes=[nodeA, nodeB, nodeC], msg=msg)) 
+print(benchmark(nodes = [nodeA,nodeB,nodeC], msg=msg, initiator_node=nodeC))
+                            
                     
-benchmark(nodes=[nodeA, nodeB, nodeC], msg=msg)                        
+                       
 #Then:
 #It can inspect those nodes.         
 
