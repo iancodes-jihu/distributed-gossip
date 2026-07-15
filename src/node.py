@@ -3,6 +3,7 @@ import json
 import uuid
 import threading
 import time
+import random
 from time import perf_counter
 
 HOST = "127.0.0.1"
@@ -31,12 +32,13 @@ class message:
 class Node:
 
 
-    def __init__(self, id, neighbors, port):
+    def __init__(self, id, neighbors, port ):
         self.id = id
         self.neighbors = neighbors
         self.port = port
         self.alive = True
         self.seen_messages = set()
+        self.packet_drop_rate =0.0
         # handle, check if message is new, add to seen set, and forward to peers
     def handle_message(self, msg):
         if self.alive == False:
@@ -44,6 +46,9 @@ class Node:
         else:
                 if msg.id in self.seen_messages:
                     print("Node", self.id, "ignore msg", msg.id, "already seen")
+                    return
+                elif random.random() < self.packet_drop_rate :
+                    print("sharks is biting the cable...")
                     return
                 else:
                         self.seen_messages.add(msg.id)
@@ -81,33 +86,7 @@ class Node:
                             data_dict = json.loads(raw)
                             incoming_msg = message(id=str(data_dict["id"]), origin=data_dict["origin"], payload=data_dict["payload"])
                             self.handle_message(incoming_msg)
-       
-                
-msg = message (
-    id = str(uuid.uuid4()),
-    origin = "A",
-    payload = "Hello from A"
-)
 
-
-nodeA = Node(id="5001", neighbors=PEERS_A, port= PORT_A)
-nodeB = Node(id="5002", neighbors=PEERS_B, port= PORT_B)
-nodeC = Node(id="5003", neighbors=PEERS_C, port= PORT_C)
-
-nodes = [nodeA,nodeB,nodeC]
-
-thread_a = threading.Thread(target=nodeA.listen)
-thread_b = threading.Thread(target=nodeB.listen)
-thread_c = threading.Thread(target=nodeC.listen)
-thread_a.start()
-thread_b.start()
-thread_c.start()
-time.sleep(1)
-
-
-
-#Given:
-#The benchmark has started.
 def benchmark(nodes, msg, initiator_node):
     start = time.perf_counter()
     initiator_node.handle_message(msg)
@@ -123,9 +102,47 @@ def benchmark(nodes, msg, initiator_node):
 
     return elapsed_time
 
-nodeB.alive = False
+
+
+
+
+if __name__ == "__main__":
+    msg = message (
+    id = str(uuid.uuid4()),
+    origin = "A",
+    payload = "Hello from A"
+    )
+
+    nodeA = Node(id="5001", neighbors=PEERS_A, port= PORT_A)
+    nodeB = Node(id="5002", neighbors=PEERS_B, port= PORT_B)
+    nodeC = Node(id="5003", neighbors=PEERS_C, port= PORT_C)
+
+    nodes = [nodeA,nodeB,nodeC]
+
+    thread_a = threading.Thread(target=nodeA.listen)
+    thread_b = threading.Thread(target=nodeB.listen)
+    thread_c = threading.Thread(target=nodeC.listen)
+    thread_a.start()
+    thread_b.start()
+    thread_c.start()
+    time.sleep(1)
+
+    print(benchmark(nodes = [nodeA,nodeB,nodeC], msg=msg, initiator_node=nodeC))
+
+
+
+
+
+
+
+
+
+#Given:
+#The benchmark has started.
+
+
+#nodeB.alive = False
 #print(benchmark(nodes=[nodeA, nodeB, nodeC], msg=msg)) 
-print(benchmark(nodes = [nodeA,nodeB,nodeC], msg=msg, initiator_node=nodeC))
                             
                     
                        

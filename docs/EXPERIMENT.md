@@ -14,3 +14,15 @@ Limitation Analysis
 3. Node are threads, not separate machines
 4. No network latency stimulation
 5. small network size (3 nodes)
+
+## Edge Cases & Failures Discovered.
+
+1. How does the benchmark behave when the initiator is dead?
+>immedietly goes to infinte loop of waiting because all the other node is alive. but the intiator is dead.but handle.message has no way of knowing that. making the infinite loop
+
+2. How does the benchmark behave when all nodes are dead?
+
+3. How does the benchmark behave when a cable is cut (100% packet loss to one node)?
+
+
+
