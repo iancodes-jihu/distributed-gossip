@@ -21,8 +21,9 @@ Limitation Analysis
 >immedietly goes to infinte loop of waiting because all the other node is alive. but the intiator is dead.but handle.message has no way of knowing that. making the infinite loop
 
 2. How does the benchmark behave when all nodes are dead?
-
+> Convergence immedietly reach, because well all the node are dead so it reach to the sama conclution. and its print the empty set of each node
 3. How does the benchmark behave when a cable is cut (100% packet loss to one node)?
+> when node C is experienxing packet lose. the other node still send its message to it. but because they have noway of knowing that the that. it goes to infinite loop waiting for the message to arrive. it also print sharks bite the cable as a way to comunitcate that the cable is cut
 
 
 
